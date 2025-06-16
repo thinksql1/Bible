@@ -159,7 +159,7 @@
                 id: 'week2',
                 title: 'Saul the Disobedient King',
                 scripture: '1 Samuel 10-15',
-                summary: `This week chronicles the promising rise and tragic initial fall of Saul, Israel's first human king. Saul, a tall and handsome man from the tribe of Benjamin, was chosen by God. His reign began with a private anointing by Samuel, an act divinely confirmed by three prophetic signs. Despite this, Saul initially exhibited striking humility, even hiding among the supplies during his public selection by lot at Mizpah. He quickly proved his military prowess by rallying a divided Israel to a decisive victory over the Ammonites at Jabesh-gilead. However, Saul's reign was swiftly defined by a pattern of disobedience rooted in fear and impatience. His first critical failure occurred at Gilgal, where, under pressure from a massing Philistine army, Saul unlawfully offered a burnt offering. The second, and final, failure came when he was given a direct command to utterly destroy the Amalekites. Saul disobeyed by sparing King Agag and the best of the livestock, ostensibly to sacrifice to the Lord.`,
+                summary: `This week chronicles the promising rise and tragic initial fall of Saul, Israel's first human king. Saul, a tall and handsome man from the tribe of Benjamin, was chosen by God. His reign began with a private anointing by Samuel, an act divinely confirmed by three prophetic signs. Despite this, Saul initially exhibited striking humility, even hiding among the supplies during his public selection by lot at Mizpah. He quickly proved his military prowess by rallying a divided Israel to a decisive victory over the Ammonites at Jabesh-gilead. However, Saul's reign was swiftly defined by a pattern of disobedience rooted in fear and impatience. His first critical failure occurred at Gilgal, where, under pressure from a massing Philistine army, Saul unlawfully offered a burnt offering. The second, and final, failure came when he was given a direct command from God to utterly destroy the Amalekites. Saul disobeyed by sparing King Agag and the best of the livestock, ostensibly to sacrifice to the Lord.`,
                 principles: `This act of partial obedience was exposed by Samuel as outright rebellion. Saul's excuses—blaming the people and claiming religious motives—were stripped away, revealing a heart that feared man more than God. Samuel delivered the final, devastating verdict: "Because thou hast rejected the word of the LORD, he hath also rejected thee from being king" (1 Samuel 15:23). The central theme is the tragic contrast between the complete, faith-based obedience God requires and the partial, fear-based obedience that amounts to rebellion. Saul's story is a powerful case study in the principle that "to obey is better than sacrifice" (1 Samuel 15:22).`,
                 people: [
                     { name: 'Saul', insight: `From the tribe of Benjamin, Saul was chosen by God to be Israel's first king. He was described as a choice young man, goodly, and taller than anyone else. He began his reign with humility and military success, but his character was ultimately defined by impulsiveness and a fear of public opinion that led him to disobey God's direct commands. His excuses for his disobedience revealed a heart that feared man more than God.`},
@@ -552,11 +552,23 @@
                  mapData.routes.forEach(route => {
                     L.polyline(route.path, { color: route.color, weight: 4, dashArray: '5, 10' }).addTo(map);
                 });
-                let allPoints = mapData.routes.flatMap(r => r.path);
+                let allPoints = mapData.locations.map(l => l.coords).concat(mapData.routes.flatMap(r => r.path));
                 if(allPoints.length > 0) {
-                    map.fitBounds(L.polyline(allPoints).getBounds(), {padding: [50, 50]});
+                    map.fitBounds(L.latLngBounds(allPoints), {padding: [50, 50]});
                 }
             }
+
+            // This tells the map to re-check its container size after the browser has finished rendering.
+            setTimeout(function() {
+                map.invalidateSize();
+                // We also re-fit the bounds just in case.
+                if (mapData.routes && mapData.routes.length > 0) {
+                    let allPoints = mapData.locations.map(l => l.coords).concat(mapData.routes.flatMap(r => r.path));
+                     if(allPoints.length > 0) {
+                        map.fitBounds(L.latLngBounds(allPoints), {padding: [50, 50]});
+                    }
+                }
+            }, 10);
         }
         
         weeksData.forEach((week, index) => {
